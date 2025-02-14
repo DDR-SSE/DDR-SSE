@@ -9,7 +9,7 @@ import java.util.Collections;
 import Client.Client;
 import Server.Server;
 
-public class DDR2_benchmark {
+public class DDR_benchmark {
 
 
     public static void main(String[] args) throws Exception {

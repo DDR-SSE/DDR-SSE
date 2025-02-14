@@ -8,7 +8,7 @@ import Client.Client;
 import Server.Server;
 import util.Document_Helper;
 
-public class DDR2_leakage_extraction {
+public class DDR_leakage_extraction {
 
 
     public static void main(String[] args) throws Exception {
@@ -16,10 +16,17 @@ public class DDR2_leakage_extraction {
     	Integer bucket_size = 200;
     	Integer N_queries = 1200;
     	
+    	String padding_len = "4096";
+    	if (args.length == 2)
+    		padding_len = args[1];
+    	
     	Client client = new Client();
     	
     	// load inverted index and documents
-    	client.loadDatabase(args[0], bucket_size);
+    	if (args.length == 1)
+    		client.loadDatabase(args[0], bucket_size);
+    	if (args.length == 2)
+    		client.loadDatabase(args[0], args[1], bucket_size);
     	
     	
     	// client setup
@@ -38,7 +45,7 @@ public class DDR2_leakage_extraction {
     	
     	for (Integer percentile : percentiles) {
     		
-    		PrintWriter writer_leakage = new PrintWriter(String.format("../leakage/leakage_%d_%d_%d_%d.txt", client.EDocs.size()/2, N_queries, bucket_size, percentile), "UTF-8");
+    		PrintWriter writer_leakage = new PrintWriter(String.format("../leakage/leakage_%s_%d_%s_%d.txt", args[0], N_queries, args[1], percentile), "UTF-8");
     	
 	    	// load queries
     		ArrayList<String> queries = Document_Helper.loadQueries("../emails_parsed/", args[0], N_queries, percentile);
