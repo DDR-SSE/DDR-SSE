@@ -4,9 +4,11 @@ import util.GGM;
 import util.tool;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class Server {
+	private HashMap<String, byte[]> EMetadata;
     private byte[][] EMM;
     private static int MAX_VOLUME_LENGTH = 1024;
     private static int server_level;
@@ -19,7 +21,8 @@ public class Server {
     public Server(){}
 
 
-    public Server(byte[][] EMM, HashMap<String, byte[]> EDocs, int level, int DEFAULT_INITIAL_CAPACITY){
+    public Server(HashMap<String, byte[]> EMetadata, byte[][] EMM, HashMap<String, byte[]> EDocs, int level, int DEFAULT_INITIAL_CAPACITY){
+    	this.EMetadata = EMetadata;
         this.EMM = EMM;
         this.EDocs = EDocs;
         //MAX_VOLUME_LENGTH = volume_length;
@@ -49,7 +52,24 @@ public class Server {
                 byte[] res = tool.Xor(tool.Xor(EMM[t0], EMM[t1]), EMM[t2]);
                 C_key.add(res);
             }
-
+    }
+    
+    public void  Query_Xor(byte[] hash, String EMetadataAddr, byte[] EMatadataMask){
+    	byte[] EMetadataEntry = EMetadata.get(EMetadataAddr);
+    	byte[] query_len_bytes = new byte[4];
+    	for (int ii = 0; ii < 4; ii++)
+    		query_len_bytes[ii] = (byte) (EMetadataEntry[ii+4] ^ EMatadataMask[ii]);
+    	
+    	int query_len = ByteBuffer.wrap(query_len_bytes).getInt();
+    	
+        for (int i = 0;i<query_len;i++ ) {
+                byte[] father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
+                int t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
+                int t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
+                int t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
+                byte[] res = tool.Xor(tool.Xor(EMM[t0], EMM[t1]), EMM[t2]);
+                C_key.add(res);
+            }
     }
     
     public void Query_docs(ArrayList<String> docAddrs) {
@@ -79,6 +99,11 @@ public class Server {
             System.out.println("Error - " + e.toString());
         }
     }
+
+
+	public byte[] Query_EMetadata(String eMetadataAddr) {
+		return EMetadata.get(eMetadataAddr);
+	}
 
 
 

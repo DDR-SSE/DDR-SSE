@@ -34,7 +34,7 @@ public class DDR_leakage_extraction {
     	System.out.println("Index and documents encrypted.");
     	
     	// server setup
-    	Server server = new Server(client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
+    	Server server = new Server(client.EMetadata, client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
     	System.out.println("Server setup.");
     	
     	
@@ -61,8 +61,15 @@ public class DDR_leakage_extraction {
 	    		String keyword = queries.get(ii);
 	    		
 	    		// query the index
+	        	String EMetadataAddr = client.metadataQueryGenAddr(keyword);
+	        	byte[] EMetadataMask1 = client.metadataQueryGenMask1(keyword);
+	        	byte[] EMetadataMask2 = client.metadataQueryGenMask2(keyword);
+	        	
+	        	byte[] EMetadataEntry = server.Query_EMetadata(EMetadataAddr);
+	        	int frequency_real = client.get_real_frequency(EMetadataEntry, EMetadataMask1);
+	        	
 	    		byte[] tk_key = client.indexQueryGen(keyword);
-	    		server.Query_Xor(tk_key, client.keyword_frequency.get(keyword));
+	    		server.Query_Xor(tk_key, EMetadataAddr, EMetadataMask2);
 	    		
 	    		ArrayList<byte[]> c_key = server.Get_C_key();
 	    		ArrayList<Integer> matching_indices = client.indexResultDecrypt(c_key, keyword);

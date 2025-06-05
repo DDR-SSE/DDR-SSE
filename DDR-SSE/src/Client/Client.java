@@ -9,6 +9,7 @@ import util.Hash;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -34,6 +35,9 @@ public class Client {
     public int ELEMENT_SIZE;
     public int STORAGE_XOR;
     
+    private byte[] metadataKey;
+    public HashMap<String, byte[]> EMetadata = new HashMap<String, byte[]>();
+    
 	private long indexKey_d;
 	private int indexKey_e;
 	
@@ -50,6 +54,7 @@ public class Client {
 	private int midpoint;
 	private int side;
 	
+	public long setup_time_metadata = 0;
 	public long setup_time_index = 0;
 	public long setup_time_documents = 0;
 	
@@ -121,8 +126,36 @@ public class Client {
     
     
     public void setup() throws Exception {
-    	// index
+    	// metadata
     	long startTime = System.nanoTime();
+    	
+    	KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128);
+        
+    	this.metadataKey = keyGen.generateKey().getEncoded();
+    	
+    	for (String keyword: this.keyword_frequency.keySet()) {
+    		String addr = metadataQueryGenAddr(keyword);
+    		byte[] mask1 = metadataQueryGenMask1(keyword);
+    		byte[] mask2 = metadataQueryGenMask2(keyword);
+    		
+    		ByteBuffer buffer = ByteBuffer.allocate(8);
+    		buffer.putInt(this.keyword_frequency_real.get(keyword));
+            buffer.putInt(this.keyword_frequency.get(keyword));
+            byte[] payload = buffer.array();
+            for (int ii = 0; ii < 4; ii++) 
+            {
+            	payload[ii]   = (byte) (payload[ii] ^ mask1[ii]);
+            	payload[ii+4] = (byte) (payload[ii+4] ^ mask2[ii]);
+            }
+            
+            this.EMetadata.put(addr, payload);
+    	}
+    	
+    	this.setup_time_metadata = System.nanoTime() - startTime;
+    	
+    	// index
+    	startTime = System.nanoTime();
     	
         Xor_Hash xor = new Xor_Hash(this.beta);
         xor.XorMM_setup(kv_list, ELEMENT_SIZE, XOR_LEVEL);
@@ -138,9 +171,6 @@ public class Client {
         
         // documents
         startTime = System.nanoTime();
-        
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(128);
         
         this.docAddrKey1 = keyGen.generateKey().getEncoded();
         this.docAddrKey2 = keyGen.generateKey().getEncoded();
@@ -159,6 +189,41 @@ public class Client {
         
         System.out.println("Documents encrypted.");
     }
+    
+    public String metadataQueryGenAddr(String keyword) throws IOException {
+    	ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+		outputStream.write(metadataKey);
+		outputStream.write(keyword.getBytes());
+		outputStream.write(0);
+		byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
+    	
+		return new String(Base64.getEncoder().encode(addr));
+    }
+    
+    public byte[] metadataQueryGenMask1(String keyword) throws IOException {
+    	ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+    	outputStream.write(metadataKey);
+		outputStream.write(keyword.getBytes());
+		outputStream.write(1);
+		byte[] mask1 = Hash.Get_SHA_256(outputStream.toByteArray());
+		return mask1;
+    }
+    
+    public byte[] metadataQueryGenMask2(String keyword) throws IOException {
+    	ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+    	outputStream.write(metadataKey);
+		outputStream.write(keyword.getBytes());
+		outputStream.write(2);
+		byte[] mask2 = Hash.Get_SHA_256(outputStream.toByteArray());
+		return mask2;
+    }
+    
+	public int get_real_frequency(byte[] eMetadataEntry, byte[] eMetadataMask1) {
+		byte[] result = new byte[4];
+		for (int ii = 0; ii < 4; ii++)
+			result[ii] = (byte) (eMetadataEntry[ii] ^ eMetadataMask1[ii]);
+		return ByteBuffer.wrap(result).getInt();
+	}
     
     
     public byte[] indexQueryGen(String keyword) {
@@ -259,7 +324,32 @@ public class Client {
     	return documents;
     } 
     
+    public ArrayList<String> decryptDocuments(ArrayList<byte[]> encryptedDocuments, int frequency_real) {
+    	ArrayList<String> documents = new ArrayList<String>();
+    	
+    	for (int ii = 0; ii < frequency_real; ii++) {
+    		byte[] encryptedDocument = encryptedDocuments.get(ii);
+    		try {
+    			String document = Document_Helper.decryptAndDecodeDocument(encryptedDocument, this.docEncKey);
+        		documents.add(document);
+    		}
+    		catch (Error | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | IOException e) {
+    			System.err.println("Error");
+    		}
+    		
+    	}
+    	return documents;
+	}
+    
     public KV[] getKVList() {
     	return this.kv_list;
     }
+
+
+
+	
+
+
+
+
 }

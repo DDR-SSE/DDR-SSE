@@ -20,7 +20,7 @@ public class DDR_benchmark {
     			   .findFirst().orElse("");
     	System.out.println(model);
     	
-    	Integer bucket_size = 200;
+    	Integer bucket_size = 400;
 
     	String padding_len = "4096";
     	if (args.length == 2)
@@ -41,14 +41,16 @@ public class DDR_benchmark {
     	System.out.println("Index and documents encrypted.");
     	
     	// server setup
-    	Server server = new Server(client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
+    	Server server = new Server(client.EMetadata, client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
     	System.out.println("Server setup.");
     	
     	
-    	writer_benchmark.write(client.EDocs.size() + "\n");
-    	writer_benchmark.write(client.getKVList().length + "\n");
-    	writer_benchmark.write(client.setup_time_index + "\n");
-    	writer_benchmark.write(client.setup_time_documents + "\n");
+    	writer_benchmark.write("#Docs: " + client.EDocs.size() + "\n");
+    	writer_benchmark.write("#KWs: " + client.EMetadata.size() + "\n");
+    	writer_benchmark.write("#KDPs: " + client.getKVList().length + "\n");
+    	writer_benchmark.write("Setup time (metadata): " + client.setup_time_metadata + "\n");
+    	writer_benchmark.write("Setup time (index): " + client.setup_time_index + "\n");
+    	writer_benchmark.write("Setup time (documents): " + client.setup_time_documents + "\n");
     	
     	// make queries
     	ArrayList<String> queries = new ArrayList<String>(client.keyword_frequency.keySet());
@@ -60,6 +62,7 @@ public class DDR_benchmark {
     	long startTime = 0;
     	long time1 = 0;
     	long time2 = 0;
+    	long time3 = 0;
     	
     	for (Integer ii = 0; ii < N_queries; ii++) {
     		if (ii % 100 == 0) {
@@ -71,13 +74,23 @@ public class DDR_benchmark {
         	startTime = System.nanoTime();
     		
     		// query the index
+        	String EMetadataAddr = client.metadataQueryGenAddr(keyword);
+        	byte[] EMetadataMask1 = client.metadataQueryGenMask1(keyword);
+        	byte[] EMetadataMask2 = client.metadataQueryGenMask2(keyword);
+        	
+        	byte[] EMetadataEntry = server.Query_EMetadata(EMetadataAddr);
+        	int frequency_real = client.get_real_frequency(EMetadataEntry, EMetadataMask1);
+        	
+        	time1 = System.nanoTime() - startTime;
+    		startTime = System.nanoTime();
+        	
     		byte[] tk_key = client.indexQueryGen(keyword);
-    		server.Query_Xor(tk_key, client.keyword_frequency.get(keyword));
+    		server.Query_Xor(tk_key, EMetadataAddr, EMetadataMask2);
     		
     		ArrayList<byte[]> c_key = server.Get_C_key();
     		ArrayList<Integer> matching_indices = client.indexResultDecrypt(c_key, keyword);
     		
-    		time1 = System.nanoTime() - startTime;
+    		time2 = System.nanoTime() - startTime;
     		startTime = System.nanoTime();
 
     		// query the documents
@@ -85,11 +98,11 @@ public class DDR_benchmark {
     		server.Query_docs(docAddrs);
     		
     		ArrayList<byte[]> encryptedDocuments = server.get_matching_docs();
-			ArrayList<String> results = client.decryptDocuments(encryptedDocuments);		
+			ArrayList<String> results = client.decryptDocuments(encryptedDocuments, frequency_real);		
     		
-    		time2 = System.nanoTime() - startTime;
+    		time3 = System.nanoTime() - startTime;
     		
-        	writer_benchmark.write(keyword + "," + client.keyword_frequency_real.get(keyword) + "," + (time1+time2) + "," + time1 + "," + time2 + "\n");
+        	writer_benchmark.write(keyword + "," + client.keyword_frequency_real.get(keyword) + "," + (time1+time2+time3) + "," + time1 + "," + time2 + "," + time3 + "\n");
         	writer_benchmark.flush();
     		
     		server.Clear();
