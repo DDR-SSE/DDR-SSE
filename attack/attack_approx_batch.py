@@ -162,13 +162,22 @@ def get_score_row(idx, assignments, leakage, aux_info):
         if idx == idx2:
             continue
         
-        count_obs = leakage['comatrix'][idx, idx2]
-        lambda_aux = aux_info['comatrix'][assignments[idx], assignments[idx2]]
+        count_obs   = leakage['comatrix'][idx, idx2]
+        count1      = aux_info['comatrix'][assignments[idx], assignments[idx]]
+        count2      = aux_info['comatrix'][assignments[idx2], assignments[idx2]]
+        lambda_aux  = aux_info['comatrix'][assignments[idx], assignments[idx2]]
+        delta       = (count1 - lambda_aux)*(count2 - lambda_aux) / (count1 + 1) / (count2 + 1)
 
 
         score_local = 0
-        if count_obs <= lambda_aux:
-            score_local += 1 / (lambda_aux+1)
+        if count_obs == 0:
+            score_local = 0.5 * (1-delta) / (lambda_aux+1) + delta / (lambda_aux+2)
+            score_local += (1-delta) / (lambda_aux+1) / (lambda_aux+1) + delta / (lambda_aux+2) / (lambda_aux+1)
+        elif count_obs == lambda_aux:
+            score_local = 0.5 * (1-delta) / (lambda_aux+1) + delta / (lambda_aux+2)
+            score_local += (1-delta) / (lambda_aux+1) / (lambda_aux+1) + delta / (lambda_aux+2) / (lambda_aux+1)
+        elif count_obs < lambda_aux:
+            score_local = 1 / (lambda_aux+1) + (1-delta) / (lambda_aux+1) / (lambda_aux+1)
 
         if score_local != 0:
             score_row += np.log(score_local)
