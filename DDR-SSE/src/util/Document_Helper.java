@@ -235,22 +235,14 @@ public class Document_Helper {
 		HashMap<String, byte[]> EDocs = new HashMap<String, byte[]>();
 		
 		for (int idx = 0; idx < documents.size(); idx++) {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-			outputStream.write(docAddrKey1);
-			outputStream.write(BigInteger.valueOf(idx).toByteArray());
-			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
-			
+			byte[] addr = Hash.Get_HMAC_SHA_256(docAddrKey1, BigInteger.valueOf(idx).toByteArray());
 			byte[] edoc = AESUtil.encrypt(docEncKey, documents.get(idx));
 			
 			EDocs.put(new String(Base64.getEncoder().encode(addr)), edoc);
 		}
 		
 		for (int idx = 0; idx < documents.size(); idx++) {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-			outputStream.write(docAddrKey2);
-			outputStream.write(BigInteger.valueOf(idx).toByteArray());
-			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
-			
+			byte[] addr = Hash.Get_HMAC_SHA_256(docAddrKey2, BigInteger.valueOf(idx).toByteArray());
 			byte[] edoc = AESUtil.encrypt(docEncKey, documents.get(idx));
 			
 			EDocs.put(new String(Base64.getEncoder().encode(addr)), edoc);
