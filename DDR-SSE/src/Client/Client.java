@@ -255,7 +255,7 @@ public class Client {
     	return new ArrayList<Integer>(results);
     }
     
-    public ArrayList<String> documentQueryGen(ArrayList<Integer> documentIds, String keyword) throws IOException {
+public ArrayList<String> documentQueryGen(ArrayList<Integer> documentIds, String keyword) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
     	ArrayList<String> docAddrs = new ArrayList<String>();
     	
     	// fix randomness
@@ -272,34 +272,22 @@ public class Client {
     	
     	for (int ii = 0; ii < documentIds.size(); ii++) {
     		if (ii < midpoint && side == 0) {
-    			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-    			outputStream.write(this.docAddrKey1);
-    			outputStream.write(BigInteger.valueOf(documentIds.get(ii)).toByteArray());
-    			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
+    			byte[] addr = Hash.Get_HMAC_SHA_256(this.docAddrKey1, BigInteger.valueOf(documentIds.get(ii)).toByteArray());
     			docAddrs.add(new String(Base64.getEncoder().encode(addr)));
     		}
     		
     		else if (ii < midpoint && side == 1) {
-    			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-    			outputStream.write(this.docAddrKey2);
-    			outputStream.write(BigInteger.valueOf(documentIds.get(ii)).toByteArray());
-    			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
+    			byte[] addr = Hash.Get_HMAC_SHA_256(this.docAddrKey2, BigInteger.valueOf(documentIds.get(ii)).toByteArray());
     			docAddrs.add(new String(Base64.getEncoder().encode(addr)));
     		}
     		
     		else if (ii >= midpoint && side == 0) {
-    			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-    			outputStream.write(this.docAddrKey2);
-    			outputStream.write(BigInteger.valueOf(documentIds.get(ii)).toByteArray());
-    			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
+    			byte[] addr = Hash.Get_HMAC_SHA_256(this.docAddrKey2, BigInteger.valueOf(documentIds.get(ii)).toByteArray());
     			docAddrs.add(new String(Base64.getEncoder().encode(addr)));
     		}
     		
     		else if (ii >= midpoint && side == 1) {
-    			ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-    			outputStream.write(this.docAddrKey1);
-    			outputStream.write(BigInteger.valueOf(documentIds.get(ii)).toByteArray());
-    			byte[] addr = Hash.Get_SHA_256(outputStream.toByteArray());
+    			byte[] addr = Hash.Get_HMAC_SHA_256(this.docAddrKey1, BigInteger.valueOf(documentIds.get(ii)).toByteArray());
     			docAddrs.add(new String(Base64.getEncoder().encode(addr)));
     		}
     		
