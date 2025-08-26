@@ -1,7 +1,9 @@
 package util;
 
-
+import javax.crypto.Mac;
 import java.security.MessageDigest;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
@@ -32,6 +34,17 @@ public class Hash {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static byte[] Get_HMAC_SHA_256(byte[] key, byte[] data)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+
+        Mac hmacSha256 = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "HmacSHA256");
+        hmacSha256.init(secretKeySpec);
+
+        byte[] hmacBytes = hmacSha256.doFinal(data);
+        return hmacBytes;
     }
 
     public static byte[]  Get_MD5(byte[] passwordToHash) {
