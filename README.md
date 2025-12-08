@@ -41,6 +41,8 @@ We modified the scripts to make them compatible with DDR-SSE.
 
 
 ## 4.1 The SAP Attack
+We work with `./USENIX21-sap-code-master/` as the root directory in this section.
+
 We have included our run of the attack in the repository. If you just want to see the plot, jump to Step 5. Otherwise, rename or delete `./manager_df_data.pkl` and follow the following procedure.
 
 1. To run the SAP attack against DDR-SSE, begin by running `./add_experiments_to_manager.py`. This produces `./manager_df_data.pkl`. 
@@ -51,6 +53,8 @@ We have included our run of the attack in the repository. If you just want to se
 
 
 ## 4.2 The IHOP Attack
+We work with `./USENIX22-ihop-code-master/` as the root directory in this section.
+
 We have included our run of the attack in the repository. If you just want to see the plot, jump to Step 5. Otherwise, rename or delete `./manager_data5.pkl` and follow the following procedure.
 
 1. To run the IHOP attack against DDR-SSE, begin by running `./add_to_manager.py`. This produces `./manager_data5.pkl`. 
