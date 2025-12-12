@@ -140,12 +140,12 @@ if __name__ == "__main__":
                 if dataset_name == 'enron_db':
                     legend_elements = box['boxes'][:len(nkw_list)]
                     legend_labels = ['$n$={:d}'.format(nkw) for nkw in nkw_list]
-                    legend1 = Legend(ax1, legend_elements, legend_labels, title='$\\mathtt{sap}$ accuracy', loc='upper left')
+                    legend1 = Legend(ax1, legend_elements, legend_labels, title='$\\mathtt{SAP}$ accuracy', loc='upper left')
                     ax1.add_artist(legend1)
 
                     legend_elements = [Line2D([0], [0], color='b', linestyle=':', marker='v'), Line2D([0], [0], color='k', linestyle=':', marker='v'),
                                        Line2D([0], [0], color='r', linestyle='', marker='x')]
-                    legend_labels = ['freq only $\\mathtt{sap}$', 'naive $\mathtt{sap}$', 'bandwidth overhead']
+                    legend_labels = ['freq only $\\mathtt{SAP}$', 'naive $\mathtt{SAP}$', 'bandwidth overhead']
                     legend2 = Legend(ax1, legend_elements, legend_labels, loc='upper center')
                     ax1.add_artist(legend2)
 
