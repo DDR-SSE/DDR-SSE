@@ -70,7 +70,7 @@ if __name__ == "__main__":
             yvalues.append(candidate_y_vals)
             colors.append('C{:d}'.format(i_nkw))
 
-    fig, ax1 = plt.subplots(figsize=(6, 4))
+    fig, ax1 = plt.subplots(figsize=(7, 4))
     box = ax1.boxplot(yvalues, positions=xvalues, patch_artist=True)
     for patch, color in zip(box['boxes'], colors):
         patch.set_facecolor(color)
