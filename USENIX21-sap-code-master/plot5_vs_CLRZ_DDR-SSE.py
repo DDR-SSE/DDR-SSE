@@ -1,3 +1,8 @@
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
+
 from manager_df import ManagerDf
 import pickle
 import numpy as np
@@ -145,7 +150,7 @@ if __name__ == "__main__":
 
                     legend_elements = [Line2D([0], [0], color='b', linestyle=':', marker='v'), Line2D([0], [0], color='k', linestyle=':', marker='v'),
                                        Line2D([0], [0], color='r', linestyle='', marker='x')]
-                    legend_labels = ['freq only $\\mathtt{SAP}$', 'naive $\mathtt{SAP}$', 'bandwidth overhead']
+                    legend_labels = ['freq only $\\mathtt{SAP}$', 'naive $\\mathtt{SAP}$', 'bandwidth overhead']
                     legend2 = Legend(ax1, legend_elements, legend_labels, loc='upper center')
                     ax1.add_artist(legend2)
 
