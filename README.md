@@ -17,21 +17,21 @@ The repository has a few components:
 | Parse the Enron emails               | 5 minutes  | 25 minutes    | 4 GB    | -         |
 | Benchmark DDR-SSE                    | 5 minutes  | 50 minutes    | -       | 64 GB\*   |
 | Leakage extraction                   | 5 minutes  | 50 minutes    | 1 GB    | 64 GB     |
-| Running our attack                   | 10 minutes | 6 days \**    | -       | 8 GB      |
+| Running our attack                   | 10 minutes | 18 days \**    | -       | 8 GB      |
 | Running the SAP attack               | 5 minutes  | 1 hour        | -       | 8 GB      |
 | Running the IHOP attack              | 5 minutes  | 3 hours       | -       | 8 GB      |
 | Running the Jigsaw attack            | 5 minutes  | 2 hours       | -       | 8 GB      |
 
 \* The memory requirement is an overkill. This is set so as to reduce the amount of garbage collection during the benchmark. The implementation in the repository is a proof-of-concept. It is possible to make an implementation which has a much smaller memory footprint.
 
-\** Due to the number of experiments in total. These can be parallelized. It takes ~1 day x 6 jobs in the way it is structured in the script.
+\** Due to the number of experiments in total. These can be parallelized. It takes ~1 day x 18 jobs in the way it is structured in the script.
 
 
 ## Software Requirements
 The following softwares are required to run the experiments.
 - Java (JDK 17 and above): https://www.oracle.com/java/technologies/downloads/.
 - Python (3.8 and above): https://www.python.org/downloads/.
-    - non-standard Python moduels used: nltk, numpy, pandas, matplotlib. These can be installed using [pip](https://pypi.org/project/pip/). 
+    - non-standard Python modules used: nltk, numpy, pandas, matplotlib, tqdm, packaging. These can be installed using [pip](https://pypi.org/project/pip/). 
 
 
 ## Ethical Concerns
@@ -39,16 +39,27 @@ We use the Enron email corpus in our experiments. The dataset contains real emai
 
 
 # 1. Enron Email Parser
-First, download the Enron email corpus from https://www.cs.cmu.edu/~enron/. Then run the Python script `./email_parser/email_parser.py` to parse 400K emails into an inverted index, a single file containing all the emails (after splitting emails ), files containing auxiliary information on the 100/95/90/85/80/75-th percentile keywords, and files containing the corresponding queries.
+First, download the Enron email corpus from https://www.cs.cmu.edu/~enron/. This should be unzipped into `./emails_raw/`. Navigate to `/email_parser/`. Run the Python script 
+```
+python ./email_parser.py --ndoc <# docs> --nkw <# keywords> --padding <padding>
+```
+where `<# docs>` is the number of documents used in the experiments. Use `<# docs> = 1000` for a test run. Use `<# docs> = 400000` to reproduce the results in the paper. `<# keywords>` is the number of keywords used in the auxiliary database. The default value is 1,200 and it does not need to be changed. `<padding>` is the padded size of each document in the experiments. Use `<padding> = 4096, 8192, 16384` respectively to reproduce the results in the paper.
+
+After each run of the parser, one should find an inverted index, a single file containing all the emails (after splitting emails), files containing auxiliary information on the 100/95/90/85/80/75-th percentile keywords, and files containing the corresponding queries in `./emails_parsed/`.
 
 
 # 2. DDR-SSE Benchmark
-To run benchmark on DDR-SSE. Simply use the command
+Navigate to `./DDR-SSE/`. Navigate to `./DDR-SSE/`. Compile the code by running
 ```
-java -Xms60G -classpath "./bin/" Scheme.DDR_benchmark <# documents> <bucket size>
+javac -d ./bin/ ./src/**/*.java ./src/**/**/*.java
 ```
 
-The values used in the paper are: `<# documents> = 400000`, and `<bucket size> = 400`.
+To run benchmark on DDR-SSE. Simply use the command
+```
+java -Xms60G -classpath "./bin/" Scheme.DDR_benchmark <# docs> <padding> <bucket size>
+```
+
+The values used in the paper are: `<# docs> = 400000`, `<padding> = 4096, 8192, 16384`, and `<bucket size> = 400`.
 
 
 The remaining instructions are for leakage cryptanalysis of DDR-SSE. We start with our own attack proposed in the paper.
@@ -60,13 +71,14 @@ Navigate to `./DDR-SSE/`. Compile the code by running
 ```
 javac -d ./bin/ ./src/**/*.java ./src/**/**/*.java
 ```
+Skip this step if the code has already been compiled.
 
-Use the following command to run leakage extraction for `bucket size = 400`
+Use the following command to extract the leakage from an actual run of DDR-SSE
 ```
-java -Xms60G -classpath "./bin/" Scheme.DDR_leakage_extraction <# documents> <bucket size>
+java -Xms60G -classpath "./bin/" Scheme.DDR_leakage_extraction <# docs> <padding> <bucket size>
 ```
 
-The values used in the paper are: `<# documents> = 400000`, and `<bucket size> = 100, 200, or 400`.
+The values used in the paper are: `<# documents> = 400000`, `<padding> = 4096`, and `<bucket size> = 100, 200, 400`.
 
 ## 3.2 Running the Attack
 Run `./attack/attack_exact_batch.py` with the appropriate inputs (use `--help` to see the options) to run the attack. The attack results can be plotted with `./attack_results/attack_results_plot_exact.py`.

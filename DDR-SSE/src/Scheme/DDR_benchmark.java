@@ -23,7 +23,7 @@ public class DDR_benchmark {
     	Integer bucket_size = 400;
 
     	String padding_len = "4096";
-    	if (args.length == 2)
+    	if (args.length == 3)
     		padding_len = args[1];
     	
     	PrintWriter writer_benchmark 	= new PrintWriter("benchmark_DDR_SSE_" + padding_len + ".txt", "UTF-8");
@@ -31,10 +31,15 @@ public class DDR_benchmark {
     	Client client = new Client();
     	
     	// load inverted index and documents
-    	if (args.length == 1)
+    	if (args.length == 2) {
+    		bucket_size = Integer.parseInt(args[1]);
     		client.loadDatabase(args[0], bucket_size);
-    	if (args.length == 2)
+    	}
+    		
+    	if (args.length == 3) {
+    		bucket_size = Integer.parseInt(args[2]);
     		client.loadDatabase(args[0], args[1], bucket_size);
+    	}
     	
     	// client setup
     	client.setup();

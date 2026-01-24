@@ -15,6 +15,7 @@ from nltk.corpus import words
 import numpy as np
 
 import gzip
+import argparse
 
 #
 # Precompiled patterns for performance
@@ -162,7 +163,7 @@ def build_inverted_index(path_input, include_keywords, N_files):
 
 
 def dump_inverted_index(inverted_index, path_output):
-    file_output = open(path_output + f'inveted_index_{N_docs}.txt', 'w')
+    file_output = open(path_output + f'inveted_index_{N_docs}_{DOC_LEN}.txt', 'w')
 
     for keyword in include_keywords:
         if len(inverted_index[keyword]) > 0:
@@ -172,14 +173,14 @@ def dump_inverted_index(inverted_index, path_output):
 
 
 
-def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_output):
+def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_output1, path_output2):
     keywords = list(inverted_index_target.keys())
     keywords = sorted(keywords, key=lambda x:len(inverted_index_target[x]), reverse=True)
 
     percentiles = [100, 95, 90, 85, 80, 75]
 
     for percentile in percentiles:
-        file_output = open(path_output + f"aux_info_{N_docs}_{N_aux_keywords}_{percentile}.pkl", 'wb')
+        file_output = open(path_output2 + f"aux_info_{N_docs}_{N_aux_keywords}_{percentile}.pkl", 'wb')
 
         start_idx = (100-percentile)*len(keywords)//100
         end_idx = start_idx + N_aux_keywords
@@ -201,7 +202,7 @@ def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_outp
         pickle.dump(aux_info, file_output)
         file_output.close()
 
-        file_output = open(path_output + f"queries_{N_docs}_{N_aux_keywords}_{percentile}.txt", 'w')
+        file_output = open(path_output1 + f"queries_{N_docs}_{N_aux_keywords}_{percentile}.txt", 'w')
         for keyword in keywords_used:
             file_output.write(keyword + '\n')
         file_output.close()
@@ -210,7 +211,7 @@ def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_outp
 
 
 def dump_documents(documents_target, path_output):
-    file_output = open(path_output + f'emails_{N_docs}.txt', 'w')
+    file_output = open(path_output + f'emails_{N_docs}_{DOC_LEN}.txt', 'w')
 
     for document in documents_target:
         file_output.write("NEW_FILE\n")
@@ -225,9 +226,29 @@ nltk.download('punkt')
 nltk.download('words')
 
 
-DOC_LEN = 4096
+
+# parsing arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('--ndoc', action='store', type=int, dest='ndoc', required=True, help="The number of documents used in the attack.")
+parser.add_argument('--nkw',  action='store', type=int, dest='nkw', required=False, help="The number of keywords used in the attack. The default is 1,200.")
+parser.add_argument('--padding',  action='store', type=int, dest='padding', required=False, help="The padded length of each document. The default is 4,096.")
+args = parser.parse_args(sys.argv[1:])
+print(f"Arguments used: {args}")
+    
+
+
 N_docs = 400000
+if args.ndoc != None:
+    N_docs = args.ndoc
+
 N_aux_keywords = 1200
+if args.nkw != None:
+    N_aux_keywords = args.nkw
+
+DOC_LEN = 4096
+if args.padding != None:
+    DOC_LEN = args.padding
+
 
 file_input = open('./include_keywords.txt', 'r', encoding='windows-1252')
 text = file_input.read()
@@ -236,13 +257,14 @@ include_keywords = set(text.split(','))
 
 
 path_input = '../emails_raw/maildir/'
-path_output = '../emails_parsed/'
+path_output1 = '../emails_parsed/'
+path_output2 = '../leakage/exact/'
 
 time_start = time.time()
 inverted_index_target, documents_target = build_inverted_index(path_input, include_keywords, N_docs)
 
-dump_inverted_index(inverted_index_target, path_output)
-dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_output)
-dump_documents(documents_target, path_output)
+dump_inverted_index(inverted_index_target, path_output1)
+dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_output1, path_output2)
+dump_documents(documents_target, path_output1)
 time_end = time.time()
 print('Time taken: %.2f seconds' % (time_end - time_start))

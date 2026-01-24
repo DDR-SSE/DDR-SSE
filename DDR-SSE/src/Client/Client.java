@@ -66,10 +66,10 @@ public class Client {
     public void loadDatabase(String N_docs, Integer bucket_size) throws IOException {
     	// load documents
     	Document_Helper document_helper = new Document_Helper();
-    	this.documents = document_helper.readDocuments("../emails_parsed/emails_" + N_docs + ".txt");
+    	this.documents = document_helper.readDocuments("../emails_parsed/emails_" + N_docs + "_4096"  + ".txt");
     	
     	// load inverted index
-    	this.kv_list = document_helper.readInvertedIndexWithBucketization("../emails_parsed/inveted_index_" + N_docs + ".txt", this.documents.size(), bucket_size);
+    	this.kv_list = document_helper.readInvertedIndexWithBucketization("../emails_parsed/inveted_index_" + N_docs + "_4096" + ".txt", this.documents.size(), bucket_size);
     	this.keyword_frequency = document_helper.keyword_frequency;
     	this.keyword_frequency_real = document_helper.keyword_frequency_real;
     	
@@ -97,10 +97,10 @@ public class Client {
     	// load documents
     	Document_Helper document_helper = new Document_Helper();
     	document_helper.set_padding_length(Integer.parseInt(padding_length));
-    	this.documents = document_helper.readDocuments("../emails_parsed/emails_" + N_docs + ".txt");
+    	this.documents = document_helper.readDocuments("../emails_parsed/emails_" + N_docs + "_" + padding_length + ".txt");
     	
     	// load inverted index
-    	this.kv_list = document_helper.readInvertedIndexWithBucketization("../emails_parsed/inveted_index_" + N_docs + ".txt", this.documents.size(), bucket_size);
+    	this.kv_list = document_helper.readInvertedIndexWithBucketization("../emails_parsed/inveted_index_" + N_docs + "_" + padding_length + ".txt", this.documents.size(), bucket_size);
     	this.keyword_frequency = document_helper.keyword_frequency;
     	this.keyword_frequency_real = document_helper.keyword_frequency_real;
     	
@@ -219,6 +219,8 @@ public class Client {
     }
     
 	public int get_real_frequency(byte[] eMetadataEntry, byte[] eMetadataMask1) {
+		if (eMetadataEntry == null)
+			return 0;
 		byte[] result = new byte[4];
 		for (int ii = 0; ii < 4; ii++)
 			result[ii] = (byte) (eMetadataEntry[ii] ^ eMetadataMask1[ii]);
@@ -255,7 +257,7 @@ public class Client {
     	return new ArrayList<Integer>(results);
     }
     
-public ArrayList<String> documentQueryGen(ArrayList<Integer> documentIds, String keyword) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+    public ArrayList<String> documentQueryGen(ArrayList<Integer> documentIds, String keyword) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
     	ArrayList<String> docAddrs = new ArrayList<String>();
     	
     	// fix randomness

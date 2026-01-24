@@ -57,10 +57,13 @@ public class Server {
     public void  Query_Xor(byte[] hash, String EMetadataAddr, byte[] EMatadataMask){
     	byte[] EMetadataEntry = EMetadata.get(EMetadataAddr);
     	byte[] query_len_bytes = new byte[4];
-    	for (int ii = 0; ii < 4; ii++)
-    		query_len_bytes[ii] = (byte) (EMetadataEntry[ii+4] ^ EMatadataMask[ii]);
+    	int query_len = 0;
     	
-    	int query_len = ByteBuffer.wrap(query_len_bytes).getInt();
+    	if (EMetadataEntry != null) {
+	    	for (int ii = 0; ii < 4; ii++)
+	    		query_len_bytes[ii] = (byte) (EMetadataEntry[ii+4] ^ EMatadataMask[ii]);
+	    	query_len = ByteBuffer.wrap(query_len_bytes).getInt();
+    	}
     	
         for (int i = 0;i<query_len;i++ ) {
                 byte[] father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));

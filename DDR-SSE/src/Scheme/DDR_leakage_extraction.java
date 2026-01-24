@@ -16,17 +16,18 @@ public class DDR_leakage_extraction {
     	Integer bucket_size = 200;
     	Integer N_queries = 1200;
     	
-    	String padding_len = "4096";
-    	if (args.length == 2)
-    		padding_len = args[1];
-    	
     	Client client = new Client();
     	
     	// load inverted index and documents
-    	if (args.length == 1)
+    	if (args.length == 2) {
+    		bucket_size = Integer.parseInt(args[1]);
     		client.loadDatabase(args[0], bucket_size);
-    	if (args.length == 2)
+    	}
+    		
+    	if (args.length == 3) {
+    		bucket_size = Integer.parseInt(args[2]);
     		client.loadDatabase(args[0], args[1], bucket_size);
+    	}
     	
     	
     	// client setup
@@ -45,10 +46,10 @@ public class DDR_leakage_extraction {
     	
     	for (Integer percentile : percentiles) {
     		
-    		PrintWriter writer_leakage = new PrintWriter(String.format("../leakage/leakage_%s_%d_%s_%d.txt", args[0], N_queries, args[1], percentile), "UTF-8");
+    		PrintWriter writer_leakage = new PrintWriter(String.format("../leakage/leakage_%s_%d_%d_%d.txt", args[0], N_queries, bucket_size, percentile), "UTF-8");
     	
 	    	// load queries
-    		ArrayList<String> queries = Document_Helper.loadQueries("../emails_parsed/", args[0], N_queries, percentile);
+    		ArrayList<String> queries = Document_Helper.loadQueries("../emails_parsed/", args, N_queries, percentile);
 	    	Collections.shuffle(queries);
 	
 	    	System.out.println(String.format("Queries on the %d-th percentile started.", percentile));
@@ -85,7 +86,10 @@ public class DDR_leakage_extraction {
 	    		for (int add_idx = 0; add_idx < docAddrs.size()-1; add_idx++) {
 	    			writer_leakage.write(docAddrs.get(add_idx) + ",");
 	    		}
-	    		writer_leakage.write(docAddrs.get(docAddrs.size()-1) + "\n");
+	    		if (docAddrs.size() > 0)
+	    			writer_leakage.write(docAddrs.get(docAddrs.size()-1) + "\n");
+	    		else
+	    			writer_leakage.write("\n");
 	    		writer_leakage.flush();
 	    		
 	    		server.Clear();
