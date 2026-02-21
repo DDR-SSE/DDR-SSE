@@ -19,7 +19,7 @@ The repository has a few components:
 | Leakage extraction                   | 5 minutes  | 50 minutes    | 1 GB    | 64 GB     |
 | Running our attack                   | 10 minutes | 18 days \**    | -       | 8 GB      |
 | Running the SAP attack               | 5 minutes  | 1 hour        | -       | 8 GB      |
-| Running the IHOP attack              | 5 minutes  | 3 hours       | -       | 8 GB      |
+| Running the IHOP attack              | 5 minutes  | 6 hours       | -       | 8 GB      |
 | Running the Jigsaw attack            | 5 minutes  | 2 hours       | -       | 8 GB      |
 
 \* The memory requirement is an overkill. This is set so as to reduce the amount of garbage collection during the benchmark. The implementation in the repository is a proof-of-concept. It is possible to make an implementation which has a much smaller memory footprint.
@@ -31,7 +31,7 @@ The repository has a few components:
 The following softwares are required to run the experiments.
 - Java (JDK 17 and above): https://www.oracle.com/java/technologies/downloads/.
 - Python (3.8 and above): https://www.python.org/downloads/.
-    - non-standard Python modules used: nltk, numpy, pandas, matplotlib, tqdm, packaging. These can be installed using [pip](https://pypi.org/project/pip/). 
+    - non-standard Python modules used: nltk, numpy, scipy, sklearn, pandas, matplotlib, tqdm, packaging, pytz. These can be installed using [pip](https://pypi.org/project/pip/). 
 
 
 ## Ethical Concerns
@@ -39,13 +39,15 @@ We use the Enron email corpus in our experiments. The dataset contains real emai
 
 
 # 1. Enron Email Parser
-First, download the Enron email corpus from https://www.cs.cmu.edu/~enron/. This should be unzipped into `./emails_raw/`. Navigate to `/email_parser/`. Run the Python script 
+First, download the Enron email corpus from https://www.cs.cmu.edu/~enron/. This should be unzipped into `./emails_raw/`. Navigate to `./email_parser/`. Run the Python script 
 ```
 python ./email_parser.py --ndoc <# docs> --nkw <# keywords> --padding <padding>
 ```
 where `<# docs>` is the number of documents used in the experiments. Use `<# docs> = 1000` for a test run. Use `<# docs> = 400000` to reproduce the results in the paper. `<# keywords>` is the number of keywords used in the auxiliary database. The default value is 1,200 and it does not need to be changed. `<padding>` is the padded size of each document in the experiments. Use `<padding> = 4096, 8192, 16384` respectively to reproduce the results in the paper.
 
 After each run of the parser, one should find an inverted index, a single file containing all the emails (after splitting emails), files containing auxiliary information on the 100/95/90/85/80/75-th percentile keywords, and files containing the corresponding queries in `./emails_parsed/`.
+
+**In case you see an encoding error,** try changing the encoding on line 253 of `./email_parser/email_parser.py` to the one used by your system.
 
 
 # 2. DDR-SSE Benchmark
@@ -99,7 +101,7 @@ We have included our run of the attack in the repository. If you just want to se
 
 1. To run the SAP attack against DDR-SSE, begin by running `./add_experiments_to_manager.py`. This produces `./manager_df_data.pkl`. 
 2. Run `./manager_df.py`. Type `w` and press return to create jobs that will be run.
-3. Run the jobs by running `./run_pending_experiments.py`. Adjust the number of cores used for the jobs on line 30 of the Python script if needed. This process can take a while (~1 hour).
+3. Run the jobs by running `./run_pending_experiments.py`. Adjust the number of processes used for the jobs on line 30 of the Python script if needed. This process can take a while (~1 hour).
 4. Run `./manager_df.py`. Type `eat` and press return to consume the attack results. These will be saved in `./manager_df_data.pkl`.
 5. Plot the experimental results by running `./plot5_vs_CLRZ_DDR-SSE.py`.
 
@@ -116,7 +118,7 @@ We have included our run of the attack in the repository. If you just want to se
 
 1. To run the IHOP attack against DDR-SSE, begin by running `./add_to_manager.py`. This produces `./manager_data5.pkl`. 
 2. Run `./manager.py`. Type `w` and press return to create jobs that will be run.
-3. Run the jobs by running `./run_from_manager.py`. Adjust the number of cores used for the jobs on line 131 of the Python script if needed. This process can take a while (~3 hours).
+3. Run the jobs by running `./run_from_manager.py`. Adjust the number of processes used for the jobs on line 131 of the Python script if needed. This process can take a while (~3 hours with 20 processes).
 4. Run `./manager.py`. Type `eat` and press return to consume the attack results. These will be saved in `./manager_data5.pkl`.
 5. Plot the experimental results by running `./plot5_vs_CLRZ_DDR-SSE.py`.
 
