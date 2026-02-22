@@ -5,6 +5,7 @@ import pickle
 import math
 import json
 import random
+import logging
 
 import time
 
@@ -27,7 +28,7 @@ recipient_pattern = re.compile("To: (?P<data>.*)")
 cc_pattern = re.compile("cc: (?P<data>.*)")
 bcc_pattern = re.compile("bcc: (?P<data>.*)")
 msg_start_pattern = re.compile("\n\n", re.MULTILINE)
-msg_end_pattern = re.compile("\n+.*\n\d+/\d+/\d+ \d+:\d+ [AP]M", re.MULTILINE)
+msg_end_pattern = re.compile(r"\n+.*\n\d+/\d+/\d+ \d+:\d+ [AP]M", re.MULTILINE)
 
 
 '''

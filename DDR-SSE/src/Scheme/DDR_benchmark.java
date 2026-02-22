@@ -14,11 +14,11 @@ public class DDR_benchmark {
 
     public static void main(String[] args) throws Exception {
     	
-    	String model = Files.lines(Paths.get("/proc/cpuinfo"))
-    			   .filter(line -> line.startsWith("model name"))
-    			   .map(line -> line.replaceAll(".*: ", ""))
-    			   .findFirst().orElse("");
-    	System.out.println(model);
+    	//String model = Files.lines(Paths.get("/proc/cpuinfo"))
+    	//		   .filter(line -> line.startsWith("model name"))
+    	//		   .map(line -> line.replaceAll(".*: ", ""))
+    	//		   .findFirst().orElse("");
+    	//System.out.println(model);
     	
     	Integer bucket_size = 400;
 

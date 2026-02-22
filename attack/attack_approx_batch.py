@@ -4,8 +4,6 @@ import pickle
 import random
 
 import numpy as np
-from scipy.stats import poisson
-from scipy.stats import binom
 
 import time
 

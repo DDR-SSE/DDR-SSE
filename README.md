@@ -51,7 +51,7 @@ After each run of the parser, one should find an inverted index, a single file c
 
 
 # 2. DDR-SSE Benchmark
-Navigate to `./DDR-SSE/`. Navigate to `./DDR-SSE/`. Compile the code by running
+Navigate to `./DDR-SSE/`. Compile the code by running
 ```
 javac -d ./bin/ ./src/**/*.java ./src/**/**/*.java
 ```
@@ -62,6 +62,8 @@ java -Xms60G -classpath "./bin/" Scheme.DDR_benchmark <# docs> <padding> <bucket
 ```
 
 The values used in the paper are: `<# docs> = 400000`, `<padding> = 4096, 8192, 16384`, and `<bucket size> = 400`.
+
+Copy the benchmark results (e.g., `benchmark_DDR_SSE_4096.txt`) over to `./benchmark_plots/` and run `./benchmark_plots/plot.py`. We provide the benchmark results from our runs in `./benchmark_plots/`.
 
 
 The remaining instructions are for leakage cryptanalysis of DDR-SSE. We start with our own attack proposed in the paper.
@@ -81,6 +83,8 @@ java -Xms60G -classpath "./bin/" Scheme.DDR_leakage_extraction <# docs> <padding
 ```
 
 The values used in the paper are: `<# documents> = 400000`, `<padding> = 4096`, and `<bucket size> = 100, 200, 400`.
+
+**In case folders `./leakage/exact/` do not exist and you get an error. Create the folder before running leakage extraction. You should also check if `./attack_results/exact/` exist for the subsequent steps.** 
 
 ## 3.2 Running the Attack
 Run `./attack/attack_exact_batch.py` with the appropriate inputs (use `--help` to see the options) to run the attack. The attack results can be plotted with `./attack_results/attack_results_plot_exact.py`.

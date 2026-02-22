@@ -271,10 +271,7 @@ public class Document_Helper {
 	
 	public static ArrayList<String> loadQueries(String path, String[] args, Integer N_queries, Integer percentile) throws IOException {
 		FileReader fileReader;
-		if (args.length == 1)
-			fileReader = new FileReader(path + "queries_" + args[0] + "_4096_" + N_queries + "_" + percentile + ".txt");
-		else
-			fileReader = new FileReader(path + "queries_" + args[0] + "_" + args[1] + "_" + N_queries + "_" + percentile + ".txt");
+		fileReader = new FileReader(path + "queries_" + args[0] + "_" + N_queries + "_" + percentile + ".txt");
 		BufferedReader br = new BufferedReader(fileReader);
 		
 		ArrayList<String> queries = new ArrayList<String>();
