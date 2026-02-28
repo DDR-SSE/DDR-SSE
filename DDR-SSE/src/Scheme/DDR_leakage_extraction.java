@@ -38,6 +38,7 @@ public class DDR_leakage_extraction {
     	Server server = new Server(client.EMetadata, client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
     	System.out.println("Server setup.");
     	
+    	client.removePlaintextDB();
     	
     	// leakage extraction
     	ArrayList<String> keywords = new ArrayList<String>(client.keyword_frequency.keySet());
@@ -45,6 +46,8 @@ public class DDR_leakage_extraction {
     	Integer[] percentiles = {100, 95, 90, 85, 80, 75};
     	
     	for (Integer percentile : percentiles) {
+    		
+    		System.gc();
     		
     		PrintWriter writer_leakage = new PrintWriter(String.format("../leakage/leakage_%s_%d_%d_%d.txt", args[0], N_queries, bucket_size, percentile), "UTF-8");
     	
@@ -63,11 +66,11 @@ public class DDR_leakage_extraction {
 	    		
 	    		// query the index
 	        	String EMetadataAddr = client.metadataQueryGenAddr(keyword);
-	        	byte[] EMetadataMask1 = client.metadataQueryGenMask1(keyword);
+	        	//byte[] EMetadataMask1 = client.metadataQueryGenMask1(keyword);
 	        	byte[] EMetadataMask2 = client.metadataQueryGenMask2(keyword);
 	        	
-	        	byte[] EMetadataEntry = server.Query_EMetadata(EMetadataAddr);
-	        	int frequency_real = client.get_real_frequency(EMetadataEntry, EMetadataMask1);
+	        	//byte[] EMetadataEntry = server.Query_EMetadata(EMetadataAddr);
+	        	//int frequency_real = client.get_real_frequency(EMetadataEntry, EMetadataMask1);
 	        	
 	    		byte[] tk_key = client.indexQueryGen(keyword);
 	    		server.Query_Xor(tk_key, EMetadataAddr, EMetadataMask2);
@@ -76,10 +79,10 @@ public class DDR_leakage_extraction {
 	    		ArrayList<Integer> matching_indices = client.indexResultDecrypt(c_key, keyword);
 	    		
 	    		ArrayList<String> docAddrs = client.documentQueryGen(matching_indices, keyword);
-	    		server.Query_docs(docAddrs);
+	    		//server.Query_docs(docAddrs);
 	    		
-	    		ArrayList<byte[]> encryptedDocuments = server.get_matching_docs();
-	    		ArrayList<String> matching_documents = client.decryptDocuments(encryptedDocuments);
+	    		//ArrayList<byte[]> encryptedDocuments = server.get_matching_docs();
+	    		//ArrayList<String> matching_documents = client.decryptDocuments(encryptedDocuments);
 	    		
 
 	    		writer_leakage.write(keyword + ",");

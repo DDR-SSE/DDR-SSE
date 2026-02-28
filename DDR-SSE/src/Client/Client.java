@@ -335,11 +335,10 @@ public class Client {
     	return this.kv_list;
     }
 
+    
 
-
-	
-
-
-
-
+	public void removePlaintextDB() {
+		this.kv_list = null;
+		this.documents = null;
+	}
 }

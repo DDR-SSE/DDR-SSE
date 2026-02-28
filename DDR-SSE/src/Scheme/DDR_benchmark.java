@@ -14,11 +14,11 @@ public class DDR_benchmark {
 
     public static void main(String[] args) throws Exception {
     	
-    	//String model = Files.lines(Paths.get("/proc/cpuinfo"))
-    	//		   .filter(line -> line.startsWith("model name"))
-    	//		   .map(line -> line.replaceAll(".*: ", ""))
-    	//		   .findFirst().orElse("");
-    	//System.out.println(model);
+    	String model = Files.lines(Paths.get("/proc/cpuinfo"))
+    			   .filter(line -> line.startsWith("model name"))
+    			   .map(line -> line.replaceAll(".*: ", ""))
+    			   .findFirst().orElse("");
+    	System.out.println(model);
     	
     	Integer bucket_size = 400;
 
@@ -48,6 +48,9 @@ public class DDR_benchmark {
     	// server setup
     	Server server = new Server(client.EMetadata, client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
     	System.out.println("Server setup.");
+    	
+    	client.removePlaintextDB();
+    	System.gc();
     	
     	
     	writer_benchmark.write("#Docs: " + client.EDocs.size() + "\n");
