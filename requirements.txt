@@ -1,0 +1,9 @@
+nltk
+numpy
+scipy 
+scikit-learn 
+pandas
+matplotlib
+tqdm
+packaging 
+pytz

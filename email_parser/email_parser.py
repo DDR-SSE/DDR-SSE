@@ -126,9 +126,13 @@ def build_inverted_index(path_input, include_keywords, N_files):
             for filename in os.listdir(os.path.join(path_input, folder, sub_folder)):
                 
                 if os.path.isfile(os.path.join(path_input, folder, sub_folder, filename)):
-                    file_input = open(os.path.join(path_input, folder, sub_folder, filename), 'r')
-                    full_text = file_input.read()
-                    file_input.close()
+                    full_text = ""
+                    try:
+                        file_input = open(os.path.join(path_input, folder, sub_folder, filename), 'r')
+                        full_text = file_input.read()
+                        file_input.close()
+                    except:
+                        continue
 
                     
                     main_body = parse_email(os.path.join(path_input, folder, sub_folder, filename))
@@ -181,6 +185,7 @@ def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_outp
     percentiles = [100, 95, 90, 85, 80, 75]
 
     for percentile in percentiles:
+        print(f"Processing auxiliary info (percentile {percentile}).")
         file_output = open(path_output2 + f"aux_info_{N_docs}_{N_aux_keywords}_{percentile}.pkl", 'wb')
 
         start_idx = (100-percentile)*len(keywords)//100
@@ -197,6 +202,8 @@ def dump_auxiliary_info(inverted_index_target, N_aux_keywords, N_docs, path_outp
         aux_info['comatrix'] = np.zeros((len(keywords_used), len(keywords_used)), dtype=np.uint)
 
         for idx1, keyword1 in enumerate(keywords_used):
+            if idx1 % (len(keywords_used)//10) == 0:
+                print(f"Progress: {idx1} / {len(keywords_used)} keywords processed.")
             for idx2, keyword2 in enumerate(keywords_used):
                 aux_info['comatrix'][idx1, idx2] = len(inverted_index_target[keyword1].intersection(inverted_index_target[keyword2]))
 
