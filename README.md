@@ -47,8 +47,6 @@ where `<# docs>` is the number of documents used in the experiments. Use `<# doc
 
 After each run of the parser, one should find an inverted index, a single file containing all the emails (after splitting emails), files containing auxiliary information on the 100/95/90/85/80/75-th percentile keywords, and files containing the corresponding queries in `./emails_parsed/`.
 
-**In case you see an encoding error,** try changing the encoding on line 253 of `./email_parser/email_parser.py` to the one used by your system.
-
 
 # 2. DDR-SSE Benchmark
 Navigate to `./DDR-SSE/`. Compile the code by running
