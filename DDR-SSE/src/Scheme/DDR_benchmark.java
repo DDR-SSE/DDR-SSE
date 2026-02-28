@@ -49,16 +49,15 @@ public class DDR_benchmark {
     	Server server = new Server(client.EMetadata, client.xor_EMM, client.EDocs, client.XOR_LEVEL, client.STORAGE_XOR);
     	System.out.println("Server setup.");
     	
-    	client.removePlaintextDB();
-    	System.gc();
-    	
-    	
     	writer_benchmark.write("#Docs: " + client.EDocs.size() + "\n");
     	writer_benchmark.write("#KWs: " + client.EMetadata.size() + "\n");
     	writer_benchmark.write("#KDPs: " + client.getKVList().length + "\n");
     	writer_benchmark.write("Setup time (metadata): " + client.setup_time_metadata + "\n");
     	writer_benchmark.write("Setup time (index): " + client.setup_time_index + "\n");
     	writer_benchmark.write("Setup time (documents): " + client.setup_time_documents + "\n");
+    	
+    	client.removePlaintextDB();
+    	System.gc();
     	
     	// make queries
     	ArrayList<String> queries = new ArrayList<String>(client.keyword_frequency.keySet());
