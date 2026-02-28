@@ -166,6 +166,7 @@ public class Client {
         this.indexKey_d = xor.Get_K_d();
         this.indexKey_e = xor.Get_K_e();
         this.xor_EMM = xor.Get_EMM();
+        xor.CleanUp();
         
         System.out.println("Index built.");
         

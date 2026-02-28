@@ -59,7 +59,8 @@ public class DDR_leakage_extraction {
 	    	
 	    	for (Integer ii = 0; ii < N_queries; ii++) {
 	    		if (ii % 100 == 0) {
-	    			System.out.println("Query Progress: " + ii);
+	    			System.out.println("Query Progress: " + ii + "/" + N_queries);
+	    			System.out.flush();
 	    		}
 	    		
 	    		String keyword = queries.get(ii);
@@ -94,6 +95,14 @@ public class DDR_leakage_extraction {
 	    		else
 	    			writer_leakage.write("\n");
 	    		writer_leakage.flush();
+	    		
+	    		EMetadataAddr = null;
+	    		EMetadataMask2 = null;
+	    		tk_key = null;
+	    		c_key = null;
+	    		matching_indices = null;
+	    		docAddrs = null;
+	    		
 	    		
 	    		server.Clear();
 	    	}

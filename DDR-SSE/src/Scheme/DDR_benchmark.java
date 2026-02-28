@@ -14,11 +14,11 @@ public class DDR_benchmark {
 
     public static void main(String[] args) throws Exception {
     	
-    	String model = Files.lines(Paths.get("/proc/cpuinfo"))
-    			   .filter(line -> line.startsWith("model name"))
-    			   .map(line -> line.replaceAll(".*: ", ""))
-    			   .findFirst().orElse("");
-    	System.out.println(model);
+    	//String model = Files.lines(Paths.get("/proc/cpuinfo"))
+    	//		   .filter(line -> line.startsWith("model name"))
+    	//		   .map(line -> line.replaceAll(".*: ", ""))
+    	//		   .findFirst().orElse("");
+    	//System.out.println(model);
     	
     	Integer bucket_size = 400;
 
@@ -74,7 +74,8 @@ public class DDR_benchmark {
     	
     	for (Integer ii = 0; ii < N_queries; ii++) {
     		if (ii % 100 == 0) {
-    			System.out.println("Query Progress: " + ii);
+    			System.out.println("Query Progress: " + ii + "/" + N_queries);
+    			System.out.flush();
     		}
     		
     		String keyword = queries.get(ii);
@@ -113,6 +114,16 @@ public class DDR_benchmark {
         	writer_benchmark.write(keyword + "," + client.keyword_frequency_real.get(keyword) + "," + (time1+time2+time3) + "," + time1 + "," + time2 + "," + time3 + "\n");
         	writer_benchmark.flush();
     		
+        	EMetadataAddr = null;
+        	EMetadataMask1 = null;
+        	EMetadataMask2 = null;
+        	EMetadataEntry = null;
+        	tk_key = null;
+        	c_key = null;
+        	matching_indices = null;
+        	docAddrs = null;
+        	results = null;
+        	
     		server.Clear();
     		if (ii % 20 == 0)
     			System.gc();

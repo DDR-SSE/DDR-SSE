@@ -31,11 +31,16 @@ public class Server {
     }
     
     public void  Query_Xor(byte[] hash){
+    	byte[] father_Node = null;
+    	int t0 = 0;
+    	int t1 = 0;
+    	int t2 = 0;
+    	
         for (int i = 0;i<MAX_VOLUME_LENGTH;i++ ) {
-                byte[] father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
-                int t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
-                int t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
-                int t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
+                father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
+                t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
+                t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
+                t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
                 byte[] res = tool.Xor(tool.Xor(EMM[t0], EMM[t1]), EMM[t2]);
                 C_key.add(res);
             }
@@ -44,11 +49,16 @@ public class Server {
     
 
     public void  Query_Xor(byte[] hash, Integer query_len){
+    	byte[] father_Node = null;
+    	int t0 = 0;
+    	int t1 = 0;
+    	int t2 = 0;
+    	
         for (int i = 0;i<query_len;i++ ) {
-                byte[] father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
-                int t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
-                int t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
-                int t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
+                father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
+                t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
+                t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
+                t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
                 byte[] res = tool.Xor(tool.Xor(EMM[t0], EMM[t1]), EMM[t2]);
                 C_key.add(res);
             }
@@ -65,11 +75,16 @@ public class Server {
 	    	query_len = ByteBuffer.wrap(query_len_bytes).getInt();
     	}
     	
+    	byte[] father_Node = null;
+    	int t0 = 0;
+    	int t1 = 0;
+    	int t2 = 0;
+    	
         for (int i = 0;i<query_len;i++ ) {
-                byte[] father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
-                int t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
-                int t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
-                int t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
+                father_Node = GGM.Tri_GGM_Path(hash, server_level, tool.TtS(i, 3, server_level));
+                t0 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 1 , 9),server_DEFAULT_INITIAL_CAPACITY,0);
+                t1 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 11, 19),server_DEFAULT_INITIAL_CAPACITY,1);
+                t2 = GGM.Map2Range(Arrays.copyOfRange(father_Node, 21, 29),server_DEFAULT_INITIAL_CAPACITY,2);
                 byte[] res = tool.Xor(tool.Xor(EMM[t0], EMM[t1]), EMM[t2]);
                 C_key.add(res);
             }

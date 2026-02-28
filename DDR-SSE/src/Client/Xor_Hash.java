@@ -102,8 +102,9 @@ public class Xor_Hash {
 
         enc_list = new byte[kv_list.length][];
 
+        byte[] K;
         for (int i = 0; i < kv_list.length; i++) {
-            byte[] K;
+            
             if(k_list.containsKey(kv_list[i].key))
                 K = k_list.get(kv_list[i].key);
             else {
@@ -113,8 +114,9 @@ public class Xor_Hash {
             enc_list[i] = AESUtil.encrypt(K,(kv_list[i].value).getBytes());
         }
         MappingStep(kv_list,table_size,level);
+        byte[] temp = new byte[16];
         for(int i=0;i<EMM.length;i++) {
-            byte[] temp = new byte[16];
+            
             if (EMM[i]==null) {
                 EMM[i] = Hash.Get_SHA_256(longToBytes(random.nextInt(1000)));
             }
@@ -132,19 +134,29 @@ public class Xor_Hash {
         byte[] reverseH = new byte[arrayLength];
         int HASHES = 3;
         int reverseOrderPos;
+        
+        String ks = "";
+        String k0 = "";
+        
+        int Node,current;
+        
+        byte[] t2count = new byte[arrayLength];
+        long[] t2 = new long[arrayLength];
+        
+        int[][] alone = new int[HASHES][blockLength];
+        int[] alonePos = new int[HASHES];
+        
         do {
             reverseOrderPos = 0;
             leave_map.clear();
             GGM.clear();
             K_d = random.nextLong();
-            byte[] t2count = new byte[arrayLength];
-            long[] t2 = new long[arrayLength];
+            
             for (int i = 0; i < kv_list.length; i++) {
                 long k = i;
                 for (int hi = 0; hi < HASHES; hi++) {
-                    String ks = kv_list[(int)k].key+","+kv_list[(int)k].counter;
-                    String k0 = ks+","+hi;
-                    int Node,current;
+                    ks = kv_list[(int)k].key+","+kv_list[(int)k].counter;
+                    k0 = ks+","+hi;
                     if(leave_map.containsKey(k0)) {
                         current = leave_map.get(k0);
                     }else {
@@ -164,8 +176,7 @@ public class Xor_Hash {
                     t2count[h]++;
                 }
             }
-            int[][] alone = new int[HASHES][blockLength];
-            int[] alonePos = new int[HASHES];
+            
             for (int nextAlone = 0; nextAlone < HASHES; nextAlone++) {
                 for (int i = 0; i < blockLength; i++) {
                     if (t2count[nextAlone * blockLength + i] == 1) {
@@ -246,6 +257,11 @@ public class Xor_Hash {
     public byte[][] Get_EMM(){ return EMM;}
 
     public byte[][] Get_VMM(){ return VMM;}
+    
+    public void CleanUp() {
+    	this.enc_list = null;
+    	this.VMM = null;
+    }
 
     public void Leave_Map_Clear() { leave_map.clear(); k_list.clear();}
 
