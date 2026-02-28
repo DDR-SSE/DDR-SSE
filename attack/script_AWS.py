@@ -67,6 +67,6 @@ if __name__ == "__main__":
             args = args.split(' ')
             args_list.append(args)
     
-    pool = multiprocessing.Pool(6)
+    pool = multiprocessing.Pool(12)
     pool.map(run_attack, args_list, chunksize=1)
     print("Done")
