@@ -11,27 +11,31 @@ The repository has a few components:
 
 
 ## Resources Required
-| Task                                 | Human Time | Computer Time | Storage |  Memory   |
-|--------------------------------------|------------|:-------------:|---------|:---------:|
-| Download the Enron email corpus      | 5 minutes  | 20 minutes    | 2 GB    | -         |
-| Parse the Enron emails               | 5 minutes  | 25 minutes    | 4 GB    | -         |
-| Benchmark DDR-SSE                    | 5 minutes  | 50 minutes    | -       | 64 GB\*   |
-| Leakage extraction                   | 5 minutes  | 50 minutes    | 1 GB    | 64 GB     |
-| Running our attack                   | 10 minutes | 18 days \**    | -       | 8 GB      |
-| Running the SAP attack               | 5 minutes  | 1 hour        | -       | 8 GB      |
-| Running the IHOP attack              | 5 minutes  | 6 hours       | -       | 8 GB      |
-| Running the Jigsaw attack            | 5 minutes  | 2 hours       | -       | 8 GB      |
+| Task                                 | Human Time | Compute Time \* | Storage |  Memory   |
+|--------------------------------------|------------|:---------------:|---------|:---------:|
+| Download the Enron email corpus      | 5 minutes  | 20 minutes      | 2 GB    | -         |
+| Parse the Enron emails               | 5 minutes  | 25 minutes      | 4 GB    | -         |
+| Benchmark DDR-SSE                    | 5 minutes  | 50 minutes      | -       | 55 GB\*** |
+| Leakage extraction                   | 5 minutes  | 50 minutes      | 1 GB    | 55 GB     |
+| Running our attack                   | 10 minutes | 18 days (24\**) | -       | 8 GB      |
+| Running the SAP attack               | 5 minutes  | 20 hours (20)   | -       | 8 GB      |
+| Running the IHOP attack              | 5 minutes  | 60 hours (20)   | -       | 8 GB      |
+| Running the Jigsaw attack            | 5 minutes  | 2 hours         | -       | 8 GB      |
 
-\* The memory requirement is an overkill. This is set so as to reduce the amount of garbage collection during the benchmark. The implementation in the repository is a proof-of-concept. It is possible to make an implementation which has a much smaller memory footprint.
 
-\** Due to the number of experiments in total. These can be parallelized. It takes ~1 day x 18 jobs in the way it is structured in the script.
+
+\* When the task contains a parallelized implementation (e.g., using `multiprocessing` in Python), we report the raw compute time without any parallelization and the default amount of parallelization. For example, `20 hours (20)` means the task would take 20 hours to run sequentially, and the implementation is parallelized using 20 processes by default. So the real-world runtime with the default amount of parallelization is `20/20 = 1 hour`.
+
+\** Using `./attack/attack_exact_batch.py`. The alternative uses 20 processes by default.
+
+\*** The memory requirement is an overkill. This is set so as to reduce the amount of garbage collection during the benchmark. The implementation in the repository is a proof-of-concept. It is possible to make an implementation which has a much smaller memory footprint.
 
 
 ## Software Requirements
 The following softwares are required to run the experiments.
 - Java (JDK 17 and above): https://www.oracle.com/java/technologies/downloads/.
 - Python (3.8 and above): https://www.python.org/downloads/.
-    - non-standard Python modules used: nltk, numpy, scipy, sklearn, pandas, matplotlib, tqdm, packaging, pytz. These can be installed using [pip](https://pypi.org/project/pip/). 
+    - non-standard Python modules used: nltk, numpy, scipy, sklearn, pandas, matplotlib, tqdm, packaging, pytz. These can be installed using [pip](https://pypi.org/project/pip/) individually, or run `pip install -r requirements.txt`.
 
 
 ## Ethical Concerns
@@ -56,7 +60,7 @@ javac -d ./bin/ ./src/**/*.java ./src/**/**/*.java
 
 To run benchmark on DDR-SSE. Simply use the command
 ```
-java -Xms60G -classpath "./bin/" Scheme.DDR_benchmark <# docs> <padding> <bucket size>
+java -Xmx55G -classpath "./bin/" Scheme.DDR_benchmark <# docs> <padding> <bucket size>
 ```
 
 The values used in the paper are: `<# docs> = 400000`, `<padding> = 4096, 8192, 16384`, and `<bucket size> = 400`.
@@ -77,7 +81,7 @@ Skip this step if the code has already been compiled.
 
 Use the following command to extract the leakage from an actual run of DDR-SSE
 ```
-java -Xms60G -classpath "./bin/" Scheme.DDR_leakage_extraction <# docs> <padding> <bucket size>
+java -Xmx55G -classpath "./bin/" Scheme.DDR_leakage_extraction <# docs> <padding> <bucket size>
 ```
 
 The values used in the paper are: `<# documents> = 400000`, `<padding> = 4096`, and `<bucket size> = 100, 200, 400`.
@@ -85,9 +89,23 @@ The values used in the paper are: `<# documents> = 400000`, `<padding> = 4096`, 
 **In case folders `./leakage/exact/` do not exist and you get an error. Create the folder before running leakage extraction. You should also check if `./attack_results/exact/` exist for the subsequent steps.** 
 
 ## 3.2 Running the Attack
-Run `./attack/attack_exact_batch.py` with the appropriate inputs (use `--help` to see the options) to run the attack. The attack results can be plotted with `./attack_results/attack_results_plot_exact.py`.
+We have 24 (single-core) attack instances with different choices of the bucket size (`nbkt = 50, 100, 200, 400`) and the keyword percentile (`pct = 100, 95, 90, 85, 80, 75`) in our paper. Each attack instance contains 10 sequential (and independent) runs. We provide two ways to run the attack instances in parallel.
 
-To run the approximate attacks, run `email_parser/email_parser_split.py` in the first step. Run leakage extraction in the same way as before. Run the attack with `./attack/attack_approx_batch.py`. And plot the results with `./attack_results/attack_results_plot_approx.py`.
+### 3.2.1 Method 1: Using a Job Submission Script
+If the attack is run on a computer cluster, create a batch job where each job runs an instance of `./attack/attack_exact_batch.py` with the appropriate inputs (use `--help` to see the options).
+
+### 3.2.2 Method 2: Using Multiprocessing
+If the attack is run on an ordinary machine, run `./attack/script_mp.py` directly. Change the number of processes on line 70 if necessary.
+
+
+### 3.2.3 Plot the Results
+The attack results can be plotted with `./attack_results/attack_results_plot_exact.py`.
+
+
+### 3.2.4 Run the Approximate Attacks
+To run the approximate attacks, run `email_parser/email_parser_split.py` with appropriate inputs. Run leakage extraction in the same way as before. Run the attack with `./attack/attack_approx_batch.py`. And plot the results with `./attack_results/attack_results_plot_approx.py`.
+
+We do not provide a script that uses multiprocessing. If needed, simply change line 3 of `./attack/script_mp.py` to import `attack_approx_batch` to run the approximate attacks using multiprocessing.
 
 
 # 4. The SAP Attack Against DDR-SSE
